@@ -58,6 +58,43 @@ php artisan serve
 
 Refer to the API controller for details on request and response formats.
 
+```bash
+{
+    "invoice_date": "2024-05-22",
+    "due_date": "2024-06-22",
+    "from_name": "Your Company Name",
+    "from_address": "1234 Main St, Anytown, USA",
+    "from_pin": "123456",
+    "from_email": "info@yourcompany.com",
+    "from_phone": "555-555-5555",
+    "payment_bank": "Your Bank",
+    "payment_branch": "Main Branch",
+    "payment_name": "Your Account Name",
+    "payment_account": "123456789",
+    "payment_pin": "987654321",
+    "payment_method": "Bank Transfer",
+    "payment_phone": "555-555-5555",
+    "customer_name": "Customer Name",
+    "customer_address": "5678 Elm St, Othertown, USA",
+    "customer_email": "customer@example.com",
+    "customer_phone": "555-555-1234",
+    "items": [
+        {
+            "description": "Item 1",
+            "quantity": 2,
+            "unit_price": 50.00
+        },
+        {
+            "description": "Item 2",
+            "quantity": 1,
+            "unit_price": 100.00
+        }
+    ],
+    "payment_terms": "Net 30",
+    "notes": "Thank you for your business."
+}
+```
+
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
@@ -67,9 +104,3 @@ Contributions are welcome! Please follow these steps:
 3. Make your changes and commit them (`git commit -am 'Add some feature'`).
 4. Push to the branch (`git push origin feature/your-feature`).
 5. Create a new pull request.
-
-Please ensure your code adheres to the existing code style and includes appropriate tests.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
