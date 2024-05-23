@@ -20,46 +20,52 @@ class InvoiceController extends Controller
 
     public function store(Request $request)
     {
-        // Generate a unique invoice number
-        $lastInvoice = Invoice::latest()->first();
-        $invoiceNumber = $lastInvoice ? 'INV-' . sprintf('%05d', $lastInvoice->id + 1) : 'INV-00001';
+        // Find the last invoice based on the invoice_number
+        $lastInvoice = Invoice::orderBy('invoice_number', 'desc')->first();
 
-        // Calculate subtotal and total
+        if ($lastInvoice) {
+            // Extract the numeric part from the last invoice number
+            $lastInvoiceNumber = (int) str_replace('INV-', '', $lastInvoice->invoice_number);
+            $invoiceNumber = 'INV-' . sprintf('%05d', $lastInvoiceNumber + 1);
+        } else {
+            $invoiceNumber = 'INV-00001';
+        }
+
         $subtotal = 0;
         foreach ($request->items as $item) {
             $subtotal += $item['quantity'] * $item['unit_price'];
         }
-        $tax = $subtotal * 0.1; // Assuming a tax rate of 10%
+        $tax = $subtotal * 0.16; 
         $total = $subtotal + $tax;
 
         $invoiceData = [
             'invoice_number' => $invoiceNumber,
-            'invoice_date' => $request->input('invoice_date'),
-            'due_date' => $request->input('due_date'),
-            // From
-            'from_name' => $request->input('from_name'),
-            'from_address' => $request->input('from_address'),
-            'from_pin' => $request->input('from_pin'),
-            'from_email' => $request->input('from_email'),
-            'from_phone' => $request->input('from_phone'),
-            'payment_bank' => $request->input('payment_bank'),
-            'payment_branch' => $request->input('payment_branch'),
-            'payment_name' => $request->input('payment_name'),
-            'payment_account' => $request->input('payment_account'),
-            'payment_pin' => $request->input('payment_pin'),
-            'payment_method' => $request->input('payment_method'),
-            'payment_phone' => $request->input('payment_phone'),
+            'invoice_date' => $request->invoice_date,
+            'due_date' => $request->due_date,
+            // Biller Information
+            'from_name' => $request->from_name,
+            'from_address' => $request->from_address,
+            'from_pin' => $request->from_pin,
+            'from_email' => $request->from_email,
+            'from_phone' => $request->from_phone,
+            'payment_bank' => $request->payment_bank,
+            'payment_branch' => $request->payment_branch,
+            'payment_name' => $request->payment_name,
+            'payment_account' => $request->payment_account,
+            'payment_pin' => $request->payment_pin,
+            'payment_method' => $request->payment_method,
+            'payment_phone' => $request->payment_phone,
 
             // customer information
-            'customer_name' => $request->input('customer_name'),
-            'customer_address' => $request->input('customer_address'),
-            'customer_email' => $request->input('customer_email'),
-            'customer_phone' => $request->input('customer_phone'),
+            'customer_name' => $request->customer_name,
+            'customer_address' => $request->customer_address,
+            'customer_email' => $request->customer_email,
+            'customer_phone' => $request->customer_phone,
             'subtotal' => $subtotal,
             'tax' => $tax,
             'total' => $total,
-            'payment_terms' => $request->input('payment_terms'),
-            'notes' => $request->input('notes'),
+            'payment_terms' => $request->payment_terms,
+            'notes' => $request->notes,
         ];
 
         $invoice = Invoice::create($invoiceData);
@@ -98,30 +104,30 @@ class InvoiceController extends Controller
         $total = $subtotal + $tax;
 
         $invoiceData = [
-            'invoice_date' => $request->input('invoice_date'),
-            'due_date' => $request->input('due_date'),
-            'from_name' => $request->input('from_name'),
-            'from_address' => $request->input('from_address'),
-            'from_pin' => $request->input('from_pin'),
-            'from_email' => $request->input('from_email'),
-            'from_phone' => $request->input('from_phone'),
-            'payment_bank' => $request->input('payment_bank'),
-            'payment_branch' => $request->input('payment_branch'),
-            'payment_name' => $request->input('payment_name'),
-            'payment_account' => $request->input('payment_account'),
-            'payment_pin' => $request->input('payment_pin'),
-            'payment_method' => $request->input('payment_method'),
-            'payment_phone' => $request->input('payment_phone'),
+            'invoice_date' => $request->invoice_date,
+            'due_date' => $request->due_date,
+            'from_name' => $request->from_name,
+            'from_address' => $request->from_address,
+            'from_pin' => $request->from_pin,
+            'from_email' => $request->from_email,
+            'from_phone' => $request->from_phone,
+            'payment_bank' => $request->payment_bank,
+            'payment_branch' => $request->payment_branch,
+            'payment_name' => $request->payment_name,
+            'payment_account' => $request->payment_account,
+            'payment_pin' => $request->payment_pin,
+            'payment_method' => $request->payment_method,
+            'payment_phone' => $request->payment_phone,
             // customer details
-            'customer_name' => $request->input('customer_name'),
-            'customer_address' => $request->input('customer_address'),
-            'customer_email' => $request->input('customer_email'),
-            'customer_phone' => $request->input('customer_phone'),
+            'customer_name' => $request->customer_name,
+            'customer_address' => $request->customer_address,
+            'customer_email' => $request->customer_email,
+            'customer_phone' => $request->customer_phone,
             'subtotal' => $subtotal,
             'tax' => $tax,
             'total' => $total,
-            'payment_terms' => $request->input('payment_terms'),
-            'notes' => $request->input('notes'),
+            'payment_terms' => $request->payment_terms,
+            'notes' => $request->notes,
             
         ];
 

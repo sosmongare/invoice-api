@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('invoice_id');
+            $table->uuid('id')->primary();
+            $table->uuid('invoice_id');
             $table->string('description');
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
