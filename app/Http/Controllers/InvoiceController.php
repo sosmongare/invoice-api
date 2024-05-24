@@ -164,7 +164,7 @@ class InvoiceController extends Controller
         $pdf = PDF::loadView('invoice', compact('invoice'));
 
         // Return the generated PDF
-        return $pdf->download('invoice-' . $invoice->invoice_number . '.pdf');
+        return $pdf->download($invoice->invoice_number . '.pdf');
     }
 
 }

@@ -75,6 +75,7 @@
                             <td>
 								Invoice No: {{ $invoice->invoice_number }} <br>
                                 Invoice Date: {{ $invoice->invoice_date }}<br>
+                                Due Date: {{ $invoice->due_date }}<br>
                             </td>
                         </tr>
                     </table>
