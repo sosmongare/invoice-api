@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Mail\InvoiceGenerated;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class InvoiceController extends Controller
 {
@@ -86,76 +87,94 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = Invoice::with('items')->findOrFail($id);
-        return response()->json([
-            'message' => 'Invoice retrieved successfully',
-            'data' => $invoice
-        ], 200);
+        try {
+            $invoice = Invoice::with('items')->findOrFail($id);
+            return response()->json([
+                'message' => 'Invoice retrieved successfully',
+                'data' => $invoice
+            ], 200); 
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Invoice ID not found'
+            ], 404);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $invoice = Invoice::findOrFail($id);
+        try{ 
+            $invoice = Invoice::findOrFail($id);
 
-        // Recalculate subtotal and total
-        $subtotal = 0;
-        foreach ($request->items as $item) {
-            $subtotal += $item['quantity'] * $item['unit_price'];
+            // Recalculate subtotal and total
+            $subtotal = 0;
+            foreach ($request->items as $item) {
+                $subtotal += $item['quantity'] * $item['unit_price'];
+            }
+            $tax = $subtotal * 0.16; // 16% VAT tax
+            $total = $subtotal + $tax;
+
+            $invoiceData = [
+                'invoice_date' => $request->invoice_date,
+                'due_date' => $request->due_date,
+                'from_name' => $request->from_name,
+                'from_address' => $request->from_address,
+                'from_pin' => $request->from_pin,
+                'from_email' => $request->from_email,
+                'from_phone' => $request->from_phone,
+                'payment_bank' => $request->payment_bank,
+                'payment_branch' => $request->payment_branch,
+                'payment_name' => $request->payment_name,
+                'payment_account' => $request->payment_account,
+                'payment_pin' => $request->payment_pin,
+                'payment_method' => $request->payment_method,
+                'payment_phone' => $request->payment_phone,
+                // customer details
+                'customer_name' => $request->customer_name,
+                'customer_address' => $request->customer_address,
+                'customer_email' => $request->customer_email,
+                'customer_phone' => $request->customer_phone,
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'total' => $total,
+                'payment_terms' => $request->payment_terms,
+                'notes' => $request->notes,
+                
+            ];
+
+            $invoice->update($invoiceData);
+
+            $invoice->items()->delete();
+            foreach ($request->items as $itemData) {
+                $itemData['invoice_id'] = $invoice->id;
+                $itemData['total_price'] = $itemData['quantity'] * $itemData['unit_price'];
+                Item::create($itemData);
+            }
+
+            return response()->json([
+                'message' => 'Invoice updated successfully',
+                'data' => $invoice->load('items')
+            ], 200);
+        }catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Invoice ID not found'
+            ], 404);
         }
-        $tax = $subtotal * 0.16; // 16% VAT tax
-        $total = $subtotal + $tax;
-
-        $invoiceData = [
-            'invoice_date' => $request->invoice_date,
-            'due_date' => $request->due_date,
-            'from_name' => $request->from_name,
-            'from_address' => $request->from_address,
-            'from_pin' => $request->from_pin,
-            'from_email' => $request->from_email,
-            'from_phone' => $request->from_phone,
-            'payment_bank' => $request->payment_bank,
-            'payment_branch' => $request->payment_branch,
-            'payment_name' => $request->payment_name,
-            'payment_account' => $request->payment_account,
-            'payment_pin' => $request->payment_pin,
-            'payment_method' => $request->payment_method,
-            'payment_phone' => $request->payment_phone,
-            // customer details
-            'customer_name' => $request->customer_name,
-            'customer_address' => $request->customer_address,
-            'customer_email' => $request->customer_email,
-            'customer_phone' => $request->customer_phone,
-            'subtotal' => $subtotal,
-            'tax' => $tax,
-            'total' => $total,
-            'payment_terms' => $request->payment_terms,
-            'notes' => $request->notes,
-            
-        ];
-
-        $invoice->update($invoiceData);
-
-        $invoice->items()->delete();
-        foreach ($request->items as $itemData) {
-            $itemData['invoice_id'] = $invoice->id;
-            $itemData['total_price'] = $itemData['quantity'] * $itemData['unit_price'];
-            Item::create($itemData);
-        }
-
-        return response()->json([
-            'message' => 'Invoice updated successfully',
-            'data' => $invoice->load('items')
-        ], 200);
     }
 
     public function destroy($id)
     {
-        $invoice = Invoice::findOrFail($id);
-        $invoice->delete();
+        try {
+            $invoice = Invoice::findOrFail($id);
+            $invoice->delete();
 
-        return response()->json([
-            'message' => 'Invoice deleted successfully'
-        ], 204);
+            return response()->json([
+                'message' => 'Invoice deleted successfully'
+            ], 204);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Invoice ID not found'
+            ], 404);
+        }
     }
 
     // public function generateInvoicePDF($id)

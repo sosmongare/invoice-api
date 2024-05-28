@@ -38,6 +38,8 @@ return new class extends Migration
             $table->decimal('total', 10, 2);
             $table->string('payment_terms')->nullable();
             $table->text('notes')->nullable();
+            
+            $table->softDeletes();
             $table->timestamps();
         });
     }

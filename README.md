@@ -8,6 +8,13 @@ Invoice API is a RESTful API for managing invoices, providing functionalities to
 2. Generate a PDF of an invoice that you have the details to (recipient, items, etc)
 3. Selling products or services on credit terms
 
+## API Documentation
+
+```
+https://documenter.getpostman.com/view/3534370/2sA3QsBD31
+
+```
+
 ## Installation
 
 1. Clone the repository:
@@ -35,7 +42,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-5. Configure your database in the `.env` file.
+5. Configure your database and mail settings for sending invoice in the `.env` file.
 
 6. Run migrations and seed the database:
 
