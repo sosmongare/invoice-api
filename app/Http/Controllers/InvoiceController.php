@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use App\Models\Item;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
-use PDF;
+use App\Mail\InvoiceGenerated;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceController extends Controller
 {
@@ -156,15 +158,37 @@ class InvoiceController extends Controller
         ], 204);
     }
 
+    // public function generateInvoicePDF($id)
+    // {
+    //     $invoice = Invoice::with('items')->findOrFail($id);
+
+    //     // Load view and pass the invoice data
+    //     $pdf = PDF::loadView('invoice', compact('invoice'));
+
+    //     // Return the generated PDF
+    //     return $pdf->download($invoice->invoice_number . '.pdf');
+    // }
+
+    
+    private function createInvoicePDF(Invoice $invoice)
+    {
+        // Load view and pass the invoice data
+        $pdf = PDF::loadView('invoice', compact('invoice'));
+        return $pdf->output();
+    }
+
     public function generateInvoicePDF($id)
     {
         $invoice = Invoice::with('items')->findOrFail($id);
+        $pdfContent = $this->createInvoicePDF($invoice);
 
-        // Load view and pass the invoice data
+        // Send the email
+        Mail::to($invoice->from_email)->send(new InvoiceGenerated($invoice, $pdfContent));
+
         $pdf = PDF::loadView('invoice', compact('invoice'));
 
-        // Return the generated PDF
-        return $pdf->download($invoice->invoice_number . '.pdf');
+        return $pdf->download($invoice->invoice_number . '.pdf'); // return the generated email invoice
+
     }
 
 }
